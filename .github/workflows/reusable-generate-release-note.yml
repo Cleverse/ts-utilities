@@ -1,0 +1,46 @@
+name: Generate Release Notes
+
+on:
+  workflow_call:
+    outputs:
+      notes:
+        description: "The generated release notes content"
+        value: ${{ jobs.generate.outputs.notes }}
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    outputs:
+      notes: ${{ steps.notes.outputs.content }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Generate Release Notes
+        id: notes
+        run: |
+          # Fetch tags to ensure we can list them
+          git fetch --tags --force || true
+
+          # Get the previous tag
+          PREV_TAG=$(git tag --sort=-creatordate | sed -n '2p')
+
+          NOTES=""
+          if [ -z "$PREV_TAG" ]; then
+            echo "No previous tag found. Generating log from start."
+            NOTES=$(git log --pretty='format:* %h %s' --no-merges)
+          else
+            echo "Generating log since $PREV_TAG"
+            NOTES=$(git log "${PREV_TAG}..HEAD" --pretty='format:* %h %s' --no-merges)
+          fi
+
+          # 1. Output to file (if needed for artifacts, though job separation makes files hard to share without upload-artifact)
+          echo "$NOTES" > release_notes.md
+
+          # 2. Output to variable for job output (handling multiline strings)
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "content<<$EOF" >> $GITHUB_OUTPUT
+          echo "$NOTES" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT

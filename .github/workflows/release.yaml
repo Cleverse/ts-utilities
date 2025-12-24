@@ -6,7 +6,11 @@ on:
     tags:
       - "v*"
 jobs:
+  generate-release-notes:
+    uses: ./.github/workflows/reusable-generate-release-note.yml
+
   build-and-commit:
+    needs: [generate-release-notes]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -69,16 +73,17 @@ jobs:
           Co-authored-by: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
 
           Source commit: ${{ github.sha }}
-          Triggered by: ${{ github.actor }}
           Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           EOF
           git tag -f ${{ github.ref_name }}
           git push origin ${{ github.ref_name }} --force
 
-      - name: Release Notes
-        run:
-          git log $(git describe HEAD~ --tags --abbrev=0)..HEAD --pretty='format:* %h %s%n  * %an <%ae>' --no-merges >>
-          ".github/RELEASE-TEMPLATE.md"
+      - name: Write Release Notes
+        run: |
+          mkdir -p .github
+          cat <<EOF > .github/RELEASE-TEMPLATE.md
+          ${{ needs.generate-release-notes.outputs.notes }}
+          EOF
       - name: Release with Notes
         uses: softprops/action-gh-release@v1
         with:
