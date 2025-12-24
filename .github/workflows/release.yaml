@@ -44,11 +44,27 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Cache ESLint
+        uses: actions/cache@v4
+        with:
+          path: .eslintcache
+          key: ${{ runner.os }}-eslint-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('**/*.[jt]s', '**/*.[jt]sx') }}
+          restore-keys: |
+            ${{ runner.os }}-eslint-${{ hashFiles('pnpm-lock.yaml') }}-
+
+      - name: Cache TSC
+        uses: actions/cache@v4
+        with:
+          path: tsconfig.tsbuildinfo
+          key: ${{ runner.os }}-tsc-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('src/**/*', 'tsconfig.json') }}
+          restore-keys: |
+            ${{ runner.os }}-tsc-${{ hashFiles('pnpm-lock.yaml') }}-
+
       - name: Test
         run: pnpm test
 
       - name: Lint
-        run: pnpm lint
+        run: pnpm lint --cache
 
       - name: Format
         run: pnpm format
