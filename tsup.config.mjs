@@ -3,13 +3,14 @@ import { cpSync } from "node:fs"
 import { resolve } from "node:path"
 
 export default defineConfig({
+	// Export all files in src directory.
 	entry: ["src/**/*.{ts,tsx,js,jsx,mjs}", "!src/dotrc/**", "!src/globals.d.ts"],
 
 	// Output formats
 	format: ["esm", "cjs"],
 	bundle: false, // preserveModules, keep the structure and hierarchy of the source code
-	dts: true, // .d.ts file for TypeScript
-	sourcemap: true, // help in debugging
+	dts: true, // .d.ts typed definition file for TypeScript
+	sourcemap: true, // useful for library debugging
 	clean: true, // delete dist folder before building again
 	outDir: "dist",
 
