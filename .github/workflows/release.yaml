@@ -63,6 +63,9 @@ jobs:
             exit 0
           fi
 
-          git commit -m "chore(build): include build artifacts for ${{ github.ref_name }}"
+          git commit -m "chore(release): publish tag ${{ github.ref_name }} [skip ci]" \
+            -m "Source commit: ${{ github.sha }}" \
+            -m "Triggered by: ${{ github.actor }}" \
+            -m "Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           git tag -f ${{ github.ref_name }}
           git push origin ${{ github.ref_name }} --force
