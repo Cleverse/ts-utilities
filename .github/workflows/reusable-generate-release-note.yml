@@ -26,14 +26,23 @@ jobs:
 
           # Get the previous tag
           PREV_TAG=$(git tag --sort=-creatordate | sed -n '2p')
+          REPO_URL="https://github.com/${{ github.repository }}"
 
-          NOTES=""
+          NOTES="## What's Changed"
           if [ -z "$PREV_TAG" ]; then
             echo "No previous tag found. Generating log from start."
-            NOTES=$(git log --pretty='format:* %h %s' --no-merges)
+            LOGS=$(git log --pretty="format:* %s by @%an in $REPO_URL/commit/%H" --no-merges)
+            NOTES="${NOTES}
+          ${LOGS}
+
+          **Full Changelog**: $REPO_URL/commits/${{ github.ref_name }}"
           else
             echo "Generating log since $PREV_TAG"
-            NOTES=$(git log "${PREV_TAG}..HEAD" --pretty='format:* %h %s' --no-merges)
+            LOGS=$(git log "${PREV_TAG}..HEAD" --pretty="format:* %s by @%an in $REPO_URL/commit/%H" --no-merges)
+            NOTES="${NOTES}
+          ${LOGS}
+
+          **Full Changelog**: $REPO_URL/compare/${PREV_TAG}...${{ github.ref_name }}"
           fi
 
           # 1. Output to file (if needed for artifacts, though job separation makes files hard to share without upload-artifact)
