@@ -1,0 +1,34 @@
+{
+	"extends": "./src/dotrc/tsconfig/base.json",
+	"compilerOptions": {
+		/* Base Options */
+		"target": "ES2022",
+		"module": "ES2022",
+		"lib": ["ES2022", "ESNext", "DOM", "DOM.Iterable"],
+		"moduleResolution": "bundler",
+
+		"allowJs": true,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"skipLibCheck": true,
+
+		/* Type Checking */
+		"strict": true,
+		"noUncheckedIndexedAccess": true,
+
+		/* Library Development */
+		"declaration": true,
+		"sourceMap": true,
+		"outDir": "dist",
+		"rootDir": "src",
+		"noEmit": true, // use `tsup` to build the project
+
+		/* Path Aliases */
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["src/*"]
+		}
+	},
+	"include": ["src/**/*", "global.d.ts"],
+	"exclude": ["node_modules", "dist"]
+}

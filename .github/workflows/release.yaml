@@ -1,0 +1,68 @@
+# Build and release without NPM registry (use Github Tags to import the package)
+name: Build and Release Tag
+
+on:
+  push:
+    tags:
+      - "v*"
+jobs:
+  build-and-commit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.ref }}
+
+      # Use Mise to read Node.js version from `mise.toml` or `.nvmrc`
+      - name: Set up mise
+        uses: jdx/mise-action@v3
+        with:
+          install: false
+      - run: echo "version=$(mise current node)" >> $GITHUB_ENV
+
+      - name: Set up PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.version }}
+          cache: "pnpm"
+          cache-dependency-path: "pnpm-lock.yaml"
+          package-manager-cache: true
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Test
+        run: pnpm test
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Format
+        run: pnpm format
+
+      - name: Build
+        run: pnpm build
+
+      - name: Commit & Push Dist to Tag
+        run: |
+          git config --global user.name "$(git log -1 --format='%an')"
+          git config --global user.email "$(git log -1 --format='%ae')"
+          git add -f dist
+
+          if git diff --staged --quiet; then
+            echo "No changes in dist folder"
+            exit 0
+          fi
+
+          git commit -m "chore(build): include build artifacts for ${{ github.ref_name }}"
+          git tag -f ${{ github.ref_name }}
+          git push origin ${{ github.ref_name }} --force

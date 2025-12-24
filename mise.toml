@@ -1,0 +1,16 @@
+# Mise configuration
+# Ref: 
+#  - https://mise.jdx.dev/mise-cookbook/nodejs.html
+#  - https://mise.jdx.dev/lang/node.html
+
+
+[tools]
+node = { version = "24.12", postinstall = "corepack enable" }
+
+[hooks]
+enter = ["mise i -q"]
+postinstall = ["corepack enable"]
+
+[settings]
+experimental = true
+idiomatic_version_file_enable_tools = ["node"]

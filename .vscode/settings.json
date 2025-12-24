@@ -1,0 +1,60 @@
+{
+	"editor.formatOnSave": true,
+	"files.exclude": {
+		"**/.git": true,
+		"**/.svn": true,
+		"**/.hg": true,
+		"**/CVS": true,
+		"**/.DS_Store": true
+	},
+	"search.exclude": {
+		"**/node_modules": true,
+		"**/build": true,
+		"**/dist": true
+	},
+	"[json]": {
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	// TypeScript / JavaScript
+	"eslint.validate": ["javascript", "typescript", "typescriptreact"],
+	"eslint.workingDirectories": [
+		{
+			"mode": "auto"
+		}
+	],
+	"[typescript]": {
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "esbenp.prettier-vscode",
+		"editor.tabSize": 2,
+		"typescript.preferences.importModuleSpecifier": "non-relative",
+		"editor.codeActionsOnSave": {
+			"source.fixAll": "always",
+			"source.fixAll.eslint": "always"
+		}
+	},
+	"[javascript]": {
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "esbenp.prettier-vscode",
+		"editor.tabSize": 2,
+		"typescript.preferences.importModuleSpecifier": "non-relative",
+		"editor.codeActionsOnSave": {
+			"source.fixAll": "always",
+			"source.fixAll.eslint": "always"
+		}
+	},
+	"[typescriptreact]": {
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "esbenp.prettier-vscode",
+		"editor.tabSize": 2,
+		"typescript.preferences.importModuleSpecifier": "non-relative",
+		"editor.codeActionsOnSave": {
+			"source.fixAll": "always",
+			"source.fixAll.eslint": "always"
+		}
+	},
+	"tailwindCSS.experimental.classRegex": [
+		["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+		["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+	]
+}

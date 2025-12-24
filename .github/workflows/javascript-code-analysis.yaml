@@ -1,0 +1,102 @@
+name: Js/Ts Code Analysis & Tests
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - develop
+      - main
+    paths:
+      - "**.ts"
+      - "**.js"
+      - "**.mjs"
+      - "**.cjs"
+      - "**.jsx"
+      - "**.tsx"
+      - "**.json"
+      - "**/package.json"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "vitest.config.ts"
+      - "tsup.config.mjs"
+      - "tsconfig.json"
+      - "eslint.config.mjs"
+      - ".prettierrc"
+      - "mise.toml"
+
+jobs:
+  analysis:
+    name: Js/Ts Lint, Test and Build
+    runs-on: "ubuntu-latest"
+    env:
+      pr_info: |
+        💡 `${{ github.event.pull_request.title }}` (#${{ github.event.pull_request.number }})
+        🔨 Merging commit ${{ github.sha }} on branch [${{ github.head_ref }}](${{ github.event.pull_request.head.repo.html_url }}/tree/${{ github.head_ref }})
+        📝 Action Status [#${{ github.run_number }}](${{ github.event.pull_request.html_url }}/checks)
+        🤔 Requested by [${{ github.actor }}](${{ github.event.pull_request.user.html_url }})
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: "0"
+
+      # Use Mise to read Node.js version from `mise.toml` or `.nvmrc`
+      - name: Set up mise
+        uses: jdx/mise-action@v3
+        with:
+          install: false
+      - run: echo "NODE_VERSION=$(mise current node)" >> $GITHUB_ENV
+
+      - name: Set up PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+          cache-dependency-path: "pnpm-lock.yaml"
+          package-manager-cache: true
+
+      - name: Update Pull Request Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: code-analysis-js
+          message: |
+            ## 🔍🤔 Running Js/Ts Code Analysis & Testing (Node v${{ env.NODE_VERSION }})
+            ${{ env.pr_info }}
+            _Please wait for the result before merging this pull request._
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Test
+        run: pnpm test
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Update Pull Request Comment for Success
+        if: ${{ success() }}
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: code-analysis-js
+          recreate: true
+          message: |
+            ## ✅ Successfully completed Js/Ts Code Analysis & Testing (Node v${{ env.NODE_VERSION }})
+            ${{ env.pr_info }}
+            _Merge this pull request if you think it's ready._
+
+      - name: Update Pull Request Comment for Failure
+        if: ${{ failure() }}
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: code-analysis-js
+          recreate: true
+          message: |
+            ## ❌ Failed to complete Js/Ts Code Analysis & Testing (Node v${{ env.NODE_VERSION }})
+            ${{ env.pr_info }}
+            _Please fix the errors before merging this pull request._
