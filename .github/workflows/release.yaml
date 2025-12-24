@@ -54,8 +54,8 @@ jobs:
 
       - name: Commit & Push Dist to Tag
         run: |
-          git config --global user.name "$(git log -1 --format='%an')"
-          git config --global user.email "$(git log -1 --format='%ae')"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f dist
 
           if git diff --staged --quiet; then
@@ -63,9 +63,27 @@ jobs:
             exit 0
           fi
 
-          git commit -m "chore(release): publish tag ${{ github.ref_name }} [skip ci]" \
-            -m "Source commit: ${{ github.sha }}" \
-            -m "Triggered by: ${{ github.actor }}" \
-            -m "Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          git commit -F - <<EOF
+          chore(release): publish tag ${{ github.ref_name }} [skip ci]
+
+          Co-authored-by: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
+
+          Source commit: ${{ github.sha }}
+          Triggered by: ${{ github.actor }}
+          Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          EOF
           git tag -f ${{ github.ref_name }}
           git push origin ${{ github.ref_name }} --force
+
+      - name: Release Notes
+        run:
+          git log $(git describe HEAD~ --tags --abbrev=0)..HEAD --pretty='format:* %h %s%n  * %an <%ae>' --no-merges >>
+          ".github/RELEASE-TEMPLATE.md"
+      - name: Release with Notes
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: ".github/RELEASE-TEMPLATE.md"
+          draft: true
+          files: ${{env.BINARY_NAME}}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
