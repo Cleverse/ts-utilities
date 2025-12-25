@@ -36,6 +36,7 @@
 	},
 	"scripts": {
 		"build": "$npm_execpath typecheck && tsup --clean",
+		"postbuild": "node -e \"import('./tsup.config.mjs').then(m => m.createDirectoryProxyFiles())\"",
 		"dev": "tsup --watch",
 		"test": "vitest run",
 		"test:watch": "vitest",

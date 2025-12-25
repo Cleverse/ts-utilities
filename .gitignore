@@ -2,6 +2,7 @@
 *.local.ts
 *.local.tsx
 *.local.js
+*.local.mjs
 *.local.json
 
 # Eg. foo_test.ignore.go, credentials.ignore.json, config.ignore.yml
