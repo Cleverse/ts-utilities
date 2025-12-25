@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../src/types/Class/index.ts"],"sourcesContent":["export * from \"./Properties\"\n"],"mappings":"AAAA,cAAc;","names":[]}

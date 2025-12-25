@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../src/utils/time/index.ts"],"sourcesContent":["export * from \"./ms\"\n"],"mappings":";;;;;;;;;;;;;;;AAAA;AAAA;AAAA,yBAAc,iBAAd;","names":[]}
