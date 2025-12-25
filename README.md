@@ -25,7 +25,7 @@ pnpm add git+ssh://git@github.com:cleverse/ts-utilities.git
 pnpm add git+ssh://git@github.com:cleverse/ts-utilities.git#v1.0.0
 ```
 
-Recommend manually editing `package.json` to ensure installation compatibility on CI/CD such as GitHub Actions.
+💡 Recommend install package manually by editing `package.json` to ensure installation compatibility on CI/CD such as GitHub Actions.
 
 ```json
 // package.json
