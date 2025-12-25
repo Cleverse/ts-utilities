@@ -22,6 +22,7 @@ export default defineConfig({
 	// Platform Compatibility
 	target: "es2022", // use the latest features of Modern JS (Node 24/Bun supports)
 	platform: "neutral",
+	shims: true, // for CJS compatibility
 
 	/**
 	 * ⚠️ KNOWN ISSUE: tsup DTS Build Race Condition
