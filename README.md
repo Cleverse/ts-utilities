@@ -26,12 +26,13 @@ pnpm add git+ssh://git@github.com:cleverse/ts-utilities.git#v1.0.0
 ```
 
 Recommend manually editing `package.json` to ensure installation compatibility on CI/CD such as GitHub Actions.
+
 ```json
 // package.json
 {
-  "dependencies": {
-    "@cleverse/ts-utilities": "git+https://github.com/cleverse/ts-utilities.git#v1.0.0"
-  }
+	"dependencies": {
+		"@cleverse/ts-utilities": "git+https://github.com/cleverse/ts-utilities.git#v1.0.0"
+	}
 }
 ```
 
@@ -98,6 +99,7 @@ pnpm check-update:fix
 1. Update version in `package.json`
 2. Commit and push changes
 3. Create a git tag: `git tag v1.x.x && git push origin v1.x.x`
+4. Wait for the release workflow to complete and check the release notes.
 
 Consumers can then update by referencing the new tag.
 
