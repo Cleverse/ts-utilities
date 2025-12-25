@@ -24,28 +24,8 @@ export default defineConfig({
 	platform: "neutral",
 	shims: true, // for CJS compatibility
 
-	/**
-	 * ⚠️ KNOWN ISSUE: tsup DTS Build Race Condition
-	 *
-	 * `onSuccess` fires after JS/CJS build completes, but tsup's DTS generation
-	 * runs as a SEPARATE ASYNC PROCESS using `tsc` that may complete AFTER `onSuccess`.
-	 *
-	 * Timeline:
-	 * 1. tsup starts → cleans dist/ (if clean: true)
-	 * 2. esbuild builds JS/CJS → completes
-	 * 3. onSuccess fires → we create proxy files (including .d.ts)
-	 * 4. tsc DTS build completes → may OVERWRITE our .d.ts proxy files!
-	 *
-	 * Workaround: Use `postbuild` npm script to run proxy creation AFTER tsup exits.
-	 * See package.json: "build": "tsup && node -e \"import('./tsup.config.mjs').then(m => m.createDirectoryProxyFiles())\""
-	 *
-	 * Alternative solutions:
-	 * - Separate `tsup --dts-only` build step
-	 * - Use `experimental-dts` with @microsoft/api-extractor
-	 * - Define explicit `exports` map in package.json for each subpath
-	 */
 	onSuccess: async () => {
-		// Copy src/dotrc -> dist/dotrc (static config files, not affected by DTS race)
+		// Copy src/dotrc -> dist/dotrc (static config files)
 		cpSync(resolve("src/dotrc"), resolve("dist/dotrc"), {
 			recursive: true,
 			force: true,
