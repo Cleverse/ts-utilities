@@ -27,6 +27,13 @@
 			"require": "./dist/*.cjs"
 		}
 	},
+	"typesVersions": {
+		"*": {
+			"*": [
+				"dist/*.d.ts"
+			]
+		}
+	},
 	"scripts": {
 		"build": "$npm_execpath typecheck && tsup --clean",
 		"dev": "tsup --watch",
