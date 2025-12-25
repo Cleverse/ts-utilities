@@ -60,14 +60,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-tsc-${{ hashFiles('pnpm-lock.yaml') }}-
 
-      - name: Test
-        run: pnpm test
-
       - name: Lint
         run: pnpm lint --cache
 
       - name: Format
         run: pnpm format
+
+      - name: Test
+        run: pnpm test
 
       - name: Build
         run: pnpm build
