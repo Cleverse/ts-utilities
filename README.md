@@ -16,18 +16,23 @@ Shared utilities and common configurations for TypeScript projects at Cleverse.
 
 This package is **not published to npm**. Install directly from GitHub:
 
-```bash
-# via SSH (recommended for internal use)
+```shell
+pnpm add git+https://github.com/cleverse/ts-utilities.git
+# or
 pnpm add git+ssh://git@github.com:cleverse/ts-utilities.git
 
-# via HTTPS
-pnpm add git+https://github.com/cleverse/ts-utilities.git
-
-# with specific version/tag
+# with specific version/tag/commit
 pnpm add git+ssh://git@github.com:cleverse/ts-utilities.git#v1.0.0
+```
 
-# with specific commit
-pnpm add git+ssh://git@github.com:cleverse/ts-utilities.git#abc1234
+Recommend manually editing `package.json` to ensure installation compatibility on CI/CD such as GitHub Actions.
+```json
+// package.json
+{
+  "dependencies": {
+    "@cleverse/ts-utilities": "git+https://github.com/cleverse/ts-utilities.git#v1.0.0"
+  }
+}
 ```
 
 ## Usage
