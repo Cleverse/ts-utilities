@@ -7,6 +7,13 @@ Shared utilities and common configurations for TypeScript projects at Cleverse.
 
 ## Installation
 
+> **NOTES:**
+>
+> There are some packages that are peer dependencies and required you to add them manually to your project (such as
+> `eslint`, `typescript`, `zod`, `pino-pretty`).
+>
+> Recommended to add `auto-install-peers=true` to `.npmrc` file to automatically install them.
+
 This package is **not published to npm**. Install directly from GitHub:
 
 ```bash
