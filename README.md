@@ -1,13 +1,13 @@
 # @cleverse/ts-utilities
 
-Shared utilities and common configurations for TypeScript projects at Cleverse.
+> 👀 This package is primarily intended for internal use at Cleverse. The repository is public for convenience, but we
+> do not actively maintain it as an open-source project.
 
-> **Note:** This package is primarily intended for internal use at Cleverse. The repository is public for convenience,
-> but we do not actively maintain it as an open-source project.
+Shared utilities and common configurations for TypeScript projects at Cleverse.
 
 ## Installation
 
-> **NOTES:**
+> **Note:**
 >
 > There are some packages that are peer dependencies and required you to add them manually to your project (such as
 > `eslint`, `typescript`, `zod`, `pino-pretty`).
@@ -25,7 +25,8 @@ pnpm add git+ssh://git@github.com:cleverse/ts-utilities.git
 pnpm add git+ssh://git@github.com:cleverse/ts-utilities.git#v1.0.0
 ```
 
-💡 Recommend install package manually by editing `package.json` to ensure installation compatibility on CI/CD such as GitHub Actions.
+💡 Recommend install package manually by editing `package.json` to ensure installation compatibility on CI/CD such as
+GitHub Actions.
 
 ```json
 // package.json
@@ -38,13 +39,36 @@ pnpm add git+ssh://git@github.com:cleverse/ts-utilities.git#v1.0.0
 
 ## Usage
 
-```typescript
-// Import specific modules
-import { Logger } from "@cleverse/ts-utilities/logger"
-import { retry, sleep } from "@cleverse/ts-utilities/utils/miscellaneous"
+Import specific modules:
 
-// Import shared configs (ESLint, TSConfig)
-// See ./src/dotrc for available configurations
+```typescript
+import { logger } from "@cleverse/ts-utilities/logger"
+import { sleep, errors } from "@cleverse/ts-utilities/utils"
+import { awaitAbort } from "@cleverse/ts-utilities/utils/aborts"
+```
+
+#### Import shared configs (ESLint, TSConfig)
+
+See [dotrc](./src/dotrc) for available configurations
+
+```json
+// tsconfig.json
+{
+	"extends": "@cleverse/ts-utilities/dotrc/tsconfig/node.json",
+	"exclude": ["node_modules", "dist"]
+}
+```
+
+```javascript
+// eslint.config.mjs
+import base from "@cleverse/ts-utilities/dotrc/eslint/base.mjs"
+
+export default [
+	...base,
+	{
+		ignores: ["*.config.mjs", "*.config.ts", "dist/**", "dist"],
+	},
+]
 ```
 
 ---
