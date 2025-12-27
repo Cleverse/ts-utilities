@@ -54,11 +54,6 @@ export default tseslint.config(
 							position: "before",
 						},
 						{
-							pattern: "@aerogram-rag/**",
-							group: "internal",
-							position: "before",
-						},
-						{
 							pattern: "@/**",
 							group: "internal",
 						},

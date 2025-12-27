@@ -20,7 +20,8 @@
 		"inlineSourceMap": false,
 		"sourceRoot": "/",
 		"declaration": true,
-		"declarationMap": true
+		"declarationMap": true,
+		"noUncheckedIndexedAccess": true
 	},
 	"exclude": ["node_modules", "dist"]
 }
