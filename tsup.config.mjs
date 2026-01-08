@@ -8,7 +8,7 @@ export default defineConfig({
 
 	// Output formats
 	format: ["esm", "cjs"],
-	bundle: false, // preserveModules, keep the structure and hierarchy of the source code
+	bundle: true, // set to false to preserveModules, keep the structure and hierarchy of the source code
 	dts: true, // .d.ts typed definition file for TypeScript
 	sourcemap: true, // useful for library debugging
 	clean: true, // delete dist folder before building again
@@ -16,8 +16,8 @@ export default defineConfig({
 
 	// Optimization
 	minify: false, // not minified to help debugging
+	splitting: true, // share code between subpath (e.g. logger uses types). required `bundle: true`
 	// treeshake: true, // remove code that is not used
-	// splitting: true, // share code between subpath (e.g. logger uses types). required `bundle: true`
 
 	// Platform Compatibility
 	target: "es2022", // use the latest features of Modern JS (Node 24/Bun supports)
@@ -61,27 +61,21 @@ export function createDirectoryProxyFiles() {
 		const dirPath = dirname(indexFile) // e.g. `dist/utils/time`
 		const parentDir = dirname(dirPath) // e.g. `dist/utils`
 		const folderName = basename(dirPath) // e.g. `time`
-
 		// Proxied output paths
 		const proxyJsPath = join(parentDir, `${folderName}.js`)
 		const proxyCjsPath = join(parentDir, `${folderName}.cjs`)
 		const proxyDtsPath = join(parentDir, `${folderName}.d.ts`)
-
 		// Proxy target path (relative import)
 		const targetPath = `./${folderName}/index`
-
 		// ESM Proxy (.js)
 		writeFileSync(proxyJsPath, `export * from '${targetPath}.js';\n`)
-
 		// Type Proxy (.d.ts)
 		writeFileSync(proxyDtsPath, `export * from '${targetPath}';\n`)
-
 		// CJS Proxy (.cjs) - only if CJS index exists
 		const cjsIndexFile = indexFile.replace(".js", ".cjs")
 		if (existsSync(cjsIndexFile)) {
 			writeFileSync(proxyCjsPath, `module.exports = require('${targetPath}.cjs');\n`)
 		}
-
 		console.log(`⚡ Created proxy files: ${folderName}.{js,cjs,d.ts}`)
 	}
 }
