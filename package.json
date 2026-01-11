@@ -64,6 +64,7 @@
 		"pino": "10.1.0",
 		"pretty-ms": "9.3.0",
 		"retry": "0.13.1",
+		"superjson": "2.2.6",
 		"typescript-eslint": "8.51.0",
 		"uuid": "13.0.0",
 		"verror": "1.10.1"

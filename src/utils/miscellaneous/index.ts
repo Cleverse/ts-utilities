@@ -1,5 +1,6 @@
 export * from "./sleep"
 export * from "./retry"
 export * from "./stream"
+export * from "./json"
 export * from "./jsonl"
 export * from "../aborts"
