@@ -1,6 +1,6 @@
 // @ts-check
 import eslint from "@eslint/js"
-import { defineConfig } from "eslint/config"
+import { defineConfig, globalIgnores } from "eslint/config"
 import { flatConfigs as importPluginFlatConfigs } from "eslint-plugin-import"
 import tseslint from "typescript-eslint"
 
@@ -8,6 +8,31 @@ export default defineConfig(
 	eslint.configs.recommended,
 	tseslint.configs.recommended,
 	importPluginFlatConfigs.recommended,
+	globalIgnores([
+		"**/dist/**",
+		"**/node_modules/**",
+		".next/**",
+		".turbo/",
+		"**/build/**",
+		"*.config.cjs",
+		"*.config.js",
+		"*.config.mjs",
+		"*.config.ts",
+		".prettierrc.js",
+		"**/ignore.*",
+		"**/*.ignore.*",
+	]),
+	{
+		files: ["**/*.{js,mjs,cjs,ts,mts,jsx,tsx}"],
+		languageOptions: {
+			parserOptions: {
+				projectService: {
+					allowDefaultProject: ["*.js", "*.mjs"],
+					defaultProject: "./tsconfig.json",
+				},
+			},
+		},
+	},
 	{
 		languageOptions: {
 			globals: {
@@ -24,7 +49,7 @@ export default defineConfig(
 				requirejs: "readonly",
 			},
 		},
-		ignores: ["mcp/index.js", "dist/**", "**/dist/**", "**/node_modules/**", ".next/**", "**/build/**"],
+		ignores: ["mcp/index.js"],
 	},
 	{
 		rules: {
@@ -71,5 +96,9 @@ export default defineConfig(
 			"import/named": "warn",
 			"import/first": "warn",
 		},
+	},
+	{
+		files: ["**/*.js"],
+		extends: [tseslint.configs.disableTypeChecked],
 	},
 )
