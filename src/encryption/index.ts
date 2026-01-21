@@ -24,7 +24,7 @@ export class EncryptionModule {
 			const actualNonce = nonce ?? crypto.randomBytes(12)
 
 			// Validate encryption key length
-			const keyBuffer = Buffer.from(encryptionKey, "utf8")
+			const keyBuffer = EncryptionModule.getKeyBuffer(encryptionKey)
 			if (keyBuffer.length !== 32) {
 				throw new VError("Encryption key must be exactly 32 bytes for AES-256")
 			}
@@ -57,7 +57,7 @@ export class EncryptionModule {
 	static async aesGcmDecrypt(data: string, nonce: Uint8Array, encryptionKey: string): Promise<Uint8Array> {
 		try {
 			// Validate encryption key length
-			const keyBuffer = Buffer.from(encryptionKey, "utf8")
+			const keyBuffer = EncryptionModule.getKeyBuffer(encryptionKey)
 			if (keyBuffer.length !== 32) {
 				throw new VError("Encryption key must be exactly 32 bytes for AES-256")
 			}
@@ -80,5 +80,34 @@ export class EncryptionModule {
 		} catch (error) {
 			throw new VError(error as Error, `Failed to decrypt data`)
 		}
+	}
+
+	/**
+	 * Generates a random 32-character encryption key suitable for use with aesGcmEncrypt
+	 */
+	static generateEncryptionKey(encoding: "hex" | "base64" | "ascii" | "utf8" = "hex"): string {
+		// return crypto.randomBytes(16).toString("hex")
+		switch (encoding) {
+			case "utf8":
+				// NOTE: UTF8 fails with crypto.randomBytes(32) - non-ASCII bytes (>=128)
+				// become variable-length multi-byte sequences, yielding unpredictable
+				// length (e.g., 58 chars instead of 32). Use hex(16 bytes) instead.
+				return crypto.randomBytes(16).toString("hex")
+			default:
+				return crypto.randomBytes(32).toString(encoding)
+		}
+	}
+
+	private static getKeyBuffer(key: string): Buffer {
+		// Hex: 64 chars
+		if (key.length === 64 && /^[0-9a-fA-F]+$/.test(key)) {
+			return Buffer.from(key, "hex")
+		}
+		// Base64: 44 chars (32 bytes = 42.6 chars -> 44 with padding)
+		if (key.length === 44 && /^[a-zA-Z0-9+/=]+$/.test(key)) {
+			return Buffer.from(key, "base64")
+		}
+		// UTF-8 Fallback
+		return Buffer.from(key, "utf8")
 	}
 }
