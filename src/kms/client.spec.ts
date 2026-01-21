@@ -1,17 +1,27 @@
+import crypto from "node:crypto"
+
 import { describe, expect, it, vi, beforeEach } from "vitest"
 
 import { KMSClient } from "./client"
 
 // Mock the KeyManagementServiceClient
-const { mockEncrypt, mockDecrypt, mockAsymmetricDecrypt, mockCryptoKeyPath, mockCryptoKeyVersionPath, mockClose } =
-	vi.hoisted(() => ({
-		mockEncrypt: vi.fn(),
-		mockDecrypt: vi.fn(),
-		mockAsymmetricDecrypt: vi.fn(),
-		mockCryptoKeyPath: vi.fn(),
-		mockCryptoKeyVersionPath: vi.fn(),
-		mockClose: vi.fn(),
-	}))
+const {
+	mockEncrypt,
+	mockDecrypt,
+	mockAsymmetricDecrypt,
+	mockGetPublicKey,
+	mockCryptoKeyPath,
+	mockCryptoKeyVersionPath,
+	mockClose,
+} = vi.hoisted(() => ({
+	mockEncrypt: vi.fn(),
+	mockDecrypt: vi.fn(),
+	mockAsymmetricDecrypt: vi.fn(),
+	mockGetPublicKey: vi.fn(),
+	mockCryptoKeyPath: vi.fn(),
+	mockCryptoKeyVersionPath: vi.fn(),
+	mockClose: vi.fn(),
+}))
 
 vi.mock("@google-cloud/kms", () => {
 	return {
@@ -19,6 +29,7 @@ vi.mock("@google-cloud/kms", () => {
 			encrypt = mockEncrypt
 			decrypt = mockDecrypt
 			asymmetricDecrypt = mockAsymmetricDecrypt
+			getPublicKey = mockGetPublicKey
 			cryptoKeyPath = mockCryptoKeyPath
 			cryptoKeyVersionPath = mockCryptoKeyVersionPath
 			close = mockClose
@@ -48,7 +59,7 @@ describe("KMSClient", () => {
 	})
 
 	describe("encrypt", () => {
-		it("should encrypt plaintext correctly and return ciphertext and key version", async () => {
+		it("should encrypt plaintext correctly (symmetric) and return ciphertext and key version", async () => {
 			const plaintext = "hello world"
 			const mockCiphertext = Buffer.from("encrypted-data")
 			const mockResponse = {
@@ -68,25 +79,93 @@ describe("KMSClient", () => {
 			expect(result.cryptoKeyVersion).toBe("1")
 		})
 
-		it("should encrypt with specific key version if provided", async () => {
+		it("should encrypt with specific key version (asymmetric) if provided", async () => {
 			const plaintext = "hello world"
 			const version = "2"
-			const mockCiphertext = Buffer.from("encrypted-data-v2")
-			const mockResponse = {
-				ciphertext: mockCiphertext,
-				name: `projects/test-project/locations/global/keyRings/test-key-ring/cryptoKeys/test-key/cryptoKeyVersions/${version}`,
+			// Generate a real key pair for testing
+			const { publicKey } = crypto.generateKeyPairSync("rsa", {
+				modulusLength: 2048,
+			})
+			const publicKeyPem = publicKey.export({ type: "spki", format: "pem" })
+
+			const mockPublicKeyResponse = {
+				pem: publicKeyPem,
+				algorithm: "RSA_DECRYPT_OAEP_2048_SHA256",
 			}
 
-			mockEncrypt.mockResolvedValue([mockResponse])
+			mockGetPublicKey.mockResolvedValue([mockPublicKeyResponse])
 
 			const result = await kmsClient.encrypt(plaintext, version)
 
-			expect(mockEncrypt).toHaveBeenCalledWith({
+			expect(mockGetPublicKey).toHaveBeenCalledWith({
 				name: `projects/test-project/locations/global/keyRings/test-key-ring/cryptoKeys/test-key/cryptoKeyVersions/${version}`,
-				plaintext: Buffer.from(plaintext),
 			})
-			expect(result.ciphertext).toBe(mockCiphertext.toString("base64"))
+
+			// Verify result format
 			expect(result.cryptoKeyVersion).toBe(version)
+			expect(typeof result.ciphertext).toBe("string")
+		})
+	})
+
+	describe("encryptAsymmetric", () => {
+		it("should encrypt plaintext using public key from KMS", async () => {
+			const plaintext = "hello world"
+			const version = "3"
+			const { publicKey } = crypto.generateKeyPairSync("rsa", {
+				modulusLength: 2048,
+			})
+			const publicKeyPem = publicKey.export({ type: "spki", format: "pem" })
+
+			const mockPublicKeyResponse = {
+				pem: publicKeyPem,
+				algorithm: "RSA_DECRYPT_OAEP_2048_SHA256",
+			}
+
+			mockGetPublicKey.mockResolvedValue([mockPublicKeyResponse])
+
+			const result = await kmsClient.encryptAsymmetric(plaintext, version)
+
+			expect(mockGetPublicKey).toHaveBeenCalledWith({
+				name: `projects/test-project/locations/global/keyRings/test-key-ring/cryptoKeys/test-key/cryptoKeyVersions/${version}`,
+			})
+			expect(result.cryptoKeyVersion).toBe(version)
+			expect(typeof result.ciphertext).toBe("string")
+		})
+
+		it("should use SHA512 hash if algorithm specifies it", async () => {
+			const plaintext = "hello world"
+			const version = "3"
+			const { publicKey } = crypto.generateKeyPairSync("rsa", {
+				modulusLength: 4096,
+			})
+			const publicKeyPem = publicKey.export({ type: "spki", format: "pem" })
+
+			const mockPublicKeyResponse = {
+				pem: publicKeyPem,
+				algorithm: "RSA_DECRYPT_OAEP_4096_SHA512",
+			}
+
+			mockGetPublicKey.mockResolvedValue([mockPublicKeyResponse])
+
+			// Spy on crypto.publicEncrypt to verify options
+			const publicEncryptSpy = vi.spyOn(crypto, "publicEncrypt")
+
+			await kmsClient.encryptAsymmetric(plaintext, version)
+
+			expect(publicEncryptSpy).toHaveBeenCalledWith(
+				expect.objectContaining({
+					oaepHash: "sha512",
+				}),
+				expect.anything(),
+			)
+		})
+
+		it("should throw error if public key PEM is missing", async () => {
+			mockGetPublicKey.mockResolvedValue([{}]) // Empty response
+
+			await expect(kmsClient.encryptAsymmetric("data", "1")).rejects.toThrow(
+				"Failed to encrypt asymmetrically with KMS",
+			)
 		})
 	})
 

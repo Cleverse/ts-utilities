@@ -28,6 +28,15 @@ export interface KMSClientInterface {
 	encrypt(plaintext: string, cryptoKeyVersion?: string): Promise<EncryptionResult>
 
 	/**
+	 * Encrypts plaintext using Google Cloud KMS with asymmetric key (public key).
+	 *
+	 * @param plaintext The text to encrypt
+	 * @param cryptoKeyVersion The specific key version to use for asymmetric encryption
+	 * @returns Promise containing base64 encoded ciphertext and crypto key version
+	 */
+	encryptAsymmetric(plaintext: string, cryptoKeyVersion: string): Promise<EncryptionResult>
+
+	/**
 	 * Decrypts ciphertext using Google Cloud KMS
 	 * @param ciphertext Base64 encoded ciphertext
 	 * @returns Promise containing decrypted plaintext

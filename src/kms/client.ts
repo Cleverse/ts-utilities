@@ -1,3 +1,5 @@
+import crypto from "node:crypto"
+
 import { KeyManagementServiceClient } from "@google-cloud/kms"
 import { VError } from "verror"
 
@@ -22,6 +24,7 @@ export class KMSClient implements KMSClientInterface {
 
 	/**
 	 * Encrypts plaintext using Google Cloud KMS.
+	 * Ref: https://docs.cloud.google.com/kms/docs/encrypt-decrypt#kms-encrypt-symmetric-nodejs
 	 *
 	 * The encrypt() method automatically detects key type (CryptoKey or CryptoKeyVersion) and uses the appropriate method for encryption
 	 * - `CryptoKey`: Symmetric encryption with the primary key version
@@ -29,18 +32,12 @@ export class KMSClient implements KMSClientInterface {
 	 */
 	async encrypt(plaintext: string, cryptoKeyVersion?: string): Promise<EncryptionResult> {
 		try {
-			const keyName = cryptoKeyVersion
-				? this.client.cryptoKeyVersionPath(
-						this.config.project,
-						this.config.location,
-						this.config.keyRing,
-						this.config.key,
-						cryptoKeyVersion,
-					)
-				: this.keyName
+			if (cryptoKeyVersion) {
+				return await this.encryptAsymmetric(plaintext, cryptoKeyVersion)
+			}
 
 			const [encryptResponse] = await this.client.encrypt({
-				name: keyName,
+				name: this.keyName,
 				plaintext: Buffer.from(plaintext),
 			})
 
@@ -50,23 +47,66 @@ export class KMSClient implements KMSClientInterface {
 
 			// Extract crypto key version from the response name
 			const nameparts = encryptResponse.name.split("/")
-			cryptoKeyVersion = nameparts[nameparts.length - 1]
+			const version = nameparts[nameparts.length - 1]
 
-			if (!cryptoKeyVersion) {
+			if (!version) {
 				throw new VError("No crypto key version returned from KMS")
 			}
 
 			return {
 				ciphertext: Buffer.from(encryptResponse.ciphertext).toString("base64"),
-				cryptoKeyVersion,
+				cryptoKeyVersion: version,
 			}
 		} catch (error) {
+			if (error instanceof VError) throw error
 			throw new VError(error as Error, "Failed to encrypt with KMS")
 		}
 	}
 
 	/**
+	 * Encrypts plaintext using Google Cloud KMS with asymmetric key (public key).
+	 * Ref: https://docs.cloud.google.com/kms/docs/encrypt-decrypt-rsa#kms-encrypt-asymmetric-nodejs
+	 */
+	async encryptAsymmetric(plaintext: string, cryptoKeyVersion: string): Promise<EncryptionResult> {
+		try {
+			const keyVersionName = this.client.cryptoKeyVersionPath(
+				this.config.project,
+				this.config.location,
+				this.config.keyRing,
+				this.config.key,
+				cryptoKeyVersion,
+			)
+
+			const [publicKey] = await this.client.getPublicKey({ name: keyVersionName })
+			if (!publicKey.pem) {
+				throw new VError("Public key PEM not found from KMS")
+			}
+
+			// Map KMS algorithm to Node.js crypto parameters
+			const algorithm = publicKey.algorithm?.toString() || ""
+			const hash = algorithm.includes("SHA512") ? "sha512" : "sha256"
+
+			const ciphertext = crypto.publicEncrypt(
+				{
+					key: publicKey.pem,
+					padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
+					oaepHash: hash,
+				},
+				Buffer.from(plaintext),
+			)
+
+			return {
+				ciphertext: ciphertext.toString("base64"),
+				cryptoKeyVersion,
+			}
+		} catch (error) {
+			throw new VError(error as Error, "Failed to encrypt asymmetrically with KMS")
+		}
+	}
+
+	/**
 	 * Decrypts ciphertext using Google Cloud KMS
+	 * Ref: https://docs.cloud.google.com/kms/docs/encrypt-decrypt#kms-decrypt-symmetric-nodejs
 	 */
 	async decrypt(ciphertext: string): Promise<string> {
 		try {
@@ -89,6 +129,7 @@ export class KMSClient implements KMSClientInterface {
 	/**
 	 * Decrypts ciphertext using Google Cloud KMS with asymmetric key
 	 * Note: Asymmetric decryption requires specifying the exact key version used for encryption
+	 * Ref: https://docs.cloud.google.com/kms/docs/encrypt-decrypt-rsa#kms-decrypt-asymmetric-nodejs
 	 */
 	async decryptAsymmetric(ciphertext: string, cryptoKeyVersion: string): Promise<string> {
 		try {
