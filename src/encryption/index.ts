@@ -9,7 +9,7 @@ export class EncryptionModule {
 	/**
 	 * Encrypts data using AES-GCM algorithm
 	 */
-	static async aesGcmEncrypt(
+	static async encrypt(
 		data: Uint8Array,
 		encryptionKey: string,
 		nonce?: Uint8Array | null,
@@ -20,6 +20,10 @@ export class EncryptionModule {
 		nonce: Uint8Array
 	}> {
 		try {
+			if (nonce && nonce.length !== 12) {
+				throw new VError("Nonce must be exactly 12 bytes")
+			}
+
 			// Generate nonce if not provided
 			const actualNonce = nonce ?? crypto.randomBytes(12)
 
@@ -54,7 +58,7 @@ export class EncryptionModule {
 	/**
 	 * Decrypts data using AES-GCM algorithm
 	 */
-	static async aesGcmDecrypt(data: string, nonce: Uint8Array, encryptionKey: string): Promise<Uint8Array> {
+	static async decrypt(data: string, nonce: Uint8Array, encryptionKey: string): Promise<Uint8Array> {
 		try {
 			// Validate encryption key length
 			const keyBuffer = EncryptionModule.getKeyBuffer(encryptionKey)
