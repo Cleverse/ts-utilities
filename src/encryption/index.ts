@@ -2,6 +2,8 @@ import crypto from "node:crypto"
 
 import VError from "verror"
 
+export * from "./encryption.service"
+
 /**
  * Encryption usecase implementing AES-GCM encryption/decryption
  */

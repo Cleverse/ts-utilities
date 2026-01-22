@@ -10,7 +10,7 @@ describe("EncryptionModule", () => {
 
 	describe("aesGcmEncrypt", () => {
 		it("should encrypt data correctly and return ciphertext and nonce", async () => {
-			const result = await EncryptionModule.aesGcmEncrypt(data, validKey)
+			const result = await EncryptionModule.encrypt(data, validKey)
 
 			expect(result.ciphertext).toBeDefined()
 			expect(typeof result.ciphertext).toBe("string")
@@ -21,13 +21,13 @@ describe("EncryptionModule", () => {
 
 		it("should use provided nonce if given", async () => {
 			const nonce = crypto.randomBytes(12)
-			const result = await EncryptionModule.aesGcmEncrypt(data, validKey, nonce)
+			const result = await EncryptionModule.encrypt(data, validKey, nonce)
 
 			expect(result.nonce).toEqual(new Uint8Array(nonce))
 		})
 
 		it("should throw error if key length is invalid", async () => {
-			await expect(EncryptionModule.aesGcmEncrypt(data, "invalid-length")).rejects.toThrow(
+			await expect(EncryptionModule.encrypt(data, "invalid-length")).rejects.toThrow(
 				"Encryption key must be exactly 32 bytes for AES-256",
 			)
 		})
@@ -35,29 +35,27 @@ describe("EncryptionModule", () => {
 
 	describe("aesGcmDecrypt", () => {
 		it("should decrypt data correctly", async () => {
-			const { ciphertext, nonce } = await EncryptionModule.aesGcmEncrypt(data, validKey)
+			const { ciphertext, nonce } = await EncryptionModule.encrypt(data, validKey)
 
-			const decrypted = await EncryptionModule.aesGcmDecrypt(ciphertext, nonce, validKey)
+			const decrypted = await EncryptionModule.decrypt(ciphertext, nonce, validKey)
 
 			expect(decrypted).toEqual(data)
 			expect(Buffer.from(decrypted).toString()).toBe("hello world")
 		})
 
 		it("should throw error if key length is invalid", async () => {
-			const { ciphertext, nonce } = await EncryptionModule.aesGcmEncrypt(data, validKey)
+			const { ciphertext, nonce } = await EncryptionModule.encrypt(data, validKey)
 
-			await expect(EncryptionModule.aesGcmDecrypt(ciphertext, nonce, "invalid-length")).rejects.toThrow(
+			await expect(EncryptionModule.decrypt(ciphertext, nonce, "invalid-length")).rejects.toThrow(
 				"Encryption key must be exactly 32 bytes for AES-256",
 			)
 		})
 
 		it("should fail to decrypt with wrong key", async () => {
-			const { ciphertext, nonce } = await EncryptionModule.aesGcmEncrypt(data, validKey)
+			const { ciphertext, nonce } = await EncryptionModule.encrypt(data, validKey)
 			const wrongKey = "12345678901234567890123456789013" // 32 bytes different key
 
-			await expect(EncryptionModule.aesGcmDecrypt(ciphertext, nonce, wrongKey)).rejects.toThrow(
-				"Failed to decrypt data",
-			)
+			await expect(EncryptionModule.decrypt(ciphertext, nonce, wrongKey)).rejects.toThrow("Failed to decrypt data")
 		})
 	})
 
@@ -106,10 +104,10 @@ describe("EncryptionModule", () => {
 			async (encoding) => {
 				const key = EncryptionModule.generateEncryptionKey(encoding)
 				const data = new Uint8Array(Buffer.from("hello world"))
-				const result = await EncryptionModule.aesGcmEncrypt(data, key)
+				const result = await EncryptionModule.encrypt(data, key)
 				expect(result.ciphertext).toBeDefined()
 
-				const decrypted = await EncryptionModule.aesGcmDecrypt(result.ciphertext, result.nonce, key)
+				const decrypted = await EncryptionModule.decrypt(result.ciphertext, result.nonce, key)
 				expect(decrypted).toEqual(data)
 			},
 		)
@@ -121,23 +119,23 @@ describe("EncryptionModule", () => {
 		const utf8Key = "12345678901234567890123456789012" // 32 chars utf8
 
 		it("should support hex encoded key (64 chars)", async () => {
-			const result = await EncryptionModule.aesGcmEncrypt(data, hexKey)
+			const result = await EncryptionModule.encrypt(data, hexKey)
 			expect(result.ciphertext).toBeDefined()
-			const decrypted = await EncryptionModule.aesGcmDecrypt(result.ciphertext, result.nonce, hexKey)
+			const decrypted = await EncryptionModule.decrypt(result.ciphertext, result.nonce, hexKey)
 			expect(decrypted).toEqual(data)
 		})
 
 		it("should support base64 encoded key (44 chars)", async () => {
-			const result = await EncryptionModule.aesGcmEncrypt(data, base64Key)
+			const result = await EncryptionModule.encrypt(data, base64Key)
 			expect(result.ciphertext).toBeDefined()
-			const decrypted = await EncryptionModule.aesGcmDecrypt(result.ciphertext, result.nonce, base64Key)
+			const decrypted = await EncryptionModule.decrypt(result.ciphertext, result.nonce, base64Key)
 			expect(decrypted).toEqual(data)
 		})
 
 		it("should support utf8 key (32 chars)", async () => {
-			const result = await EncryptionModule.aesGcmEncrypt(data, utf8Key)
+			const result = await EncryptionModule.encrypt(data, utf8Key)
 			expect(result.ciphertext).toBeDefined()
-			const decrypted = await EncryptionModule.aesGcmDecrypt(result.ciphertext, result.nonce, utf8Key)
+			const decrypted = await EncryptionModule.decrypt(result.ciphertext, result.nonce, utf8Key)
 			expect(decrypted).toEqual(data)
 		})
 	})
