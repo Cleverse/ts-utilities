@@ -8,7 +8,7 @@ export default defineConfig({
 		include: ["src/**/*.{spec,test}.ts"],
 	},
 	resolve: {
-		alias: [{ find: "@", replacement: __dirname }],
+		alias: [{ find: "@", replacement: `${__dirname}/src` }],
 		conditions: ["node", "import", "default"],
 	},
 	ssr: {
