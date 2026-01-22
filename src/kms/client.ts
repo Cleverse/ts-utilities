@@ -33,7 +33,10 @@ export class KMSClient implements KMSClientInterface {
 	 */
 	async encrypt(plaintext: string, cryptoKeyVersion?: string): Promise<EncryptionResult> {
 		try {
-			if (cryptoKeyVersion) {
+			if (this.config.keyBased === "asymmetric") {
+				if (!cryptoKeyVersion) {
+					throw new VError("Crypto key version is required for asymmetric encryption")
+				}
 				return await this.encryptAsymmetric(plaintext, cryptoKeyVersion)
 			}
 
@@ -117,9 +120,20 @@ export class KMSClient implements KMSClientInterface {
 	/**
 	 * Decrypts ciphertext using Google Cloud KMS
 	 * Ref: https://docs.cloud.google.com/kms/docs/encrypt-decrypt#kms-decrypt-symmetric-nodejs
+	 *
+	 * The decrypt() method automatically detects key type (CryptoKey or CryptoKeyVersion) and uses the appropriate method for decryption
+	 * - `CryptoKey`: Symmetric decryption with the primary key version
+	 * - `CryptoKeyVersion`: Asymmetric decryption with public key of the specified version
 	 */
-	async decrypt(ciphertext: string): Promise<string> {
+	async decrypt(ciphertext: string, cryptoKeyVersion?: string): Promise<string> {
 		try {
+			if (this.config.keyBased === "asymmetric") {
+				if (!cryptoKeyVersion) {
+					throw new VError("Crypto key version is required for asymmetric decryption")
+				}
+				return await this.decryptAsymmetric(ciphertext, cryptoKeyVersion)
+			}
+
 			const ciphertextBuffer = Buffer.from(ciphertext, "base64")
 			const [decryptResponse] = await this.client.decrypt({
 				name: this.keyName,

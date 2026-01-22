@@ -46,6 +46,7 @@ describe("KMSClient", () => {
 	}
 
 	let kmsClient: KMSClient
+	let asymmetricKmsClient: KMSClient
 
 	beforeEach(() => {
 		vi.clearAllMocks()
@@ -55,7 +56,8 @@ describe("KMSClient", () => {
 		mockCryptoKeyVersionPath.mockImplementation(
 			(p, l, r, k, v) => `projects/${p}/locations/${l}/keyRings/${r}/cryptoKeys/${k}/cryptoKeyVersions/${v}`,
 		)
-		kmsClient = new KMSClient(config)
+		kmsClient = new KMSClient({ ...config, keyBased: "symmetric" })
+		asymmetricKmsClient = new KMSClient({ ...config, keyBased: "asymmetric" })
 	})
 
 	describe("encrypt", () => {
@@ -95,7 +97,7 @@ describe("KMSClient", () => {
 
 			mockGetPublicKey.mockResolvedValue([mockPublicKeyResponse])
 
-			const result = await kmsClient.encrypt(plaintext, version)
+			const result = await asymmetricKmsClient.encrypt(plaintext, version)
 
 			expect(mockGetPublicKey).toHaveBeenCalledWith({
 				name: `projects/test-project/locations/global/keyRings/test-key-ring/cryptoKeys/test-key/cryptoKeyVersions/${version}`,
@@ -123,7 +125,7 @@ describe("KMSClient", () => {
 
 			mockGetPublicKey.mockResolvedValue([mockPublicKeyResponse])
 
-			const result = await kmsClient.encryptAsymmetric(plaintext, version)
+			const result = await asymmetricKmsClient.encryptAsymmetric(plaintext, version)
 
 			expect(mockGetPublicKey).toHaveBeenCalledWith({
 				name: `projects/test-project/locations/global/keyRings/test-key-ring/cryptoKeys/test-key/cryptoKeyVersions/${version}`,
@@ -150,7 +152,7 @@ describe("KMSClient", () => {
 			// Spy on crypto.publicEncrypt to verify options
 			const publicEncryptSpy = vi.spyOn(crypto, "publicEncrypt")
 
-			await kmsClient.encryptAsymmetric(plaintext, version)
+			await asymmetricKmsClient.encryptAsymmetric(plaintext, version)
 
 			expect(publicEncryptSpy).toHaveBeenCalledWith(
 				expect.objectContaining({
@@ -163,7 +165,7 @@ describe("KMSClient", () => {
 		it("should throw error if public key PEM is missing", async () => {
 			mockGetPublicKey.mockResolvedValue([{}]) // Empty response
 
-			await expect(kmsClient.encryptAsymmetric("data", "1")).rejects.toThrow(
+			await expect(asymmetricKmsClient.encryptAsymmetric("data", "1")).rejects.toThrow(
 				"Failed to encrypt asymmetrically with KMS",
 			)
 		})
@@ -200,7 +202,7 @@ describe("KMSClient", () => {
 
 			mockAsymmetricDecrypt.mockResolvedValue([mockResponse])
 
-			const result = await kmsClient.decryptAsymmetric(ciphertext, version)
+			const result = await asymmetricKmsClient.decryptAsymmetric(ciphertext, version)
 
 			expect(mockAsymmetricDecrypt).toHaveBeenCalledWith({
 				name: `projects/test-project/locations/global/keyRings/test-key-ring/cryptoKeys/test-key/cryptoKeyVersions/${version}`,

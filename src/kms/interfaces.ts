@@ -4,6 +4,7 @@ export interface KMSClientConfig {
 	location: string
 	keyRing: string
 	key: string
+	keyBased: "symmetric" | "asymmetric"
 }
 
 export interface EncryptionResult {
