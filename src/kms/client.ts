@@ -11,6 +11,7 @@ import type { EncryptionResult, KMSClientConfig, KMSClientInterface } from "./in
 export class KMSClient implements KMSClientInterface {
 	private readonly client: KeyManagementServiceClient
 	private readonly keyName: string
+	readonly #pubkeys = new Map<string, { pem: string; hash: "sha1" | "sha256" | "sha512" }>()
 
 	constructor(private readonly config: KMSClientConfig) {
 		this.client = new KeyManagementServiceClient()
@@ -77,18 +78,27 @@ export class KMSClient implements KMSClientInterface {
 				cryptoKeyVersion,
 			)
 
-			const [publicKey] = await this.client.getPublicKey({ name: keyVersionName })
-			if (!publicKey.pem) {
-				throw new VError("Public key PEM not found from KMS")
+			if (!this.#pubkeys.has(keyVersionName)) {
+				const [publicKey] = await this.client.getPublicKey({ name: keyVersionName })
+				if (!publicKey.pem) {
+					throw new VError("Public key PEM not found from KMS")
+				}
+				// Map KMS algorithm to Node.js crypto parameters
+				const algorithm = publicKey.algorithm?.toString().toLowerCase() || ""
+				const hash = algorithm.includes("sha256")
+					? "sha256"
+					: algorithm.includes("sha512")
+						? "sha512"
+						: algorithm.includes("sha1")
+							? "sha1"
+							: "sha256"
+				this.#pubkeys.set(keyVersionName, { pem: publicKey.pem, hash: hash })
 			}
 
-			// Map KMS algorithm to Node.js crypto parameters
-			const algorithm = publicKey.algorithm?.toString() || ""
-			const hash = algorithm.includes("SHA512") ? "sha512" : "sha256"
-
+			const { pem, hash } = this.#pubkeys.get(keyVersionName)!
 			const ciphertext = crypto.publicEncrypt(
 				{
-					key: publicKey.pem,
+					key: pem,
 					padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
 					oaepHash: hash,
 				},
