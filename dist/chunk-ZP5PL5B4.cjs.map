@@ -1,0 +1,1 @@
+{"version":3,"sources":["/home/runner/work/ts-utilities/ts-utilities/dist/chunk-ZP5PL5B4.cjs","../src/utils/math/index.ts"],"names":[],"mappings":"AAAA;AACE;AACF,wDAA6B;AAC7B;AACA;ACJA,8CAAA,CAAA","file":"/home/runner/work/ts-utilities/ts-utilities/dist/chunk-ZP5PL5B4.cjs","sourcesContent":[null,"export * from \"./decimals\"\n"]}
