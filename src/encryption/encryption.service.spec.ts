@@ -4,11 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { KMSClient } from "@/kms"
 
-import {
-	EnvelopeEncryptionService,
-	type DEK,
-	type EncryptedDEK,
-} from "./encryption.service"
+import { EnvelopeEncryptionService, type DEK, type EncryptedDEK } from "./encryption.service"
 
 import { EncryptionModule } from "./index"
 
@@ -47,11 +43,7 @@ describe("EnvelopeEncryptionService", () => {
 	beforeEach(() => {
 		vi.clearAllMocks()
 		config = {}
-		service = new EnvelopeEncryptionService(
-			mockKMSClient,
-			mockSharedDEKDatagateway,
-			config,
-		)
+		service = new EnvelopeEncryptionService(mockKMSClient, mockSharedDEKDatagateway, config)
 	})
 
 	describe("encrypt", () => {
@@ -107,9 +99,7 @@ describe("EnvelopeEncryptionService", () => {
 		it("should throw error when DEK is not found", async () => {
 			mockSharedDEKDatagateway.getDEK.mockResolvedValue(null)
 
-			await expect(service.encrypt(testData, testNonce, 1)).rejects.toThrow(
-				"Failed to encrypt data, DEK not found",
-			)
+			await expect(service.encrypt(testData, testNonce, 1)).rejects.toThrow("Failed to encrypt data, DEK not found")
 		})
 
 		it("should use generated nonce when not provided", async () => {
@@ -158,9 +148,7 @@ describe("EnvelopeEncryptionService", () => {
 		it("should throw error when DEK is not found", async () => {
 			mockSharedDEKDatagateway.getDEK.mockResolvedValue(null)
 
-			await expect(service.decrypt(ciphertext, nonce, 1)).rejects.toThrow(
-				"Failed to decrypt data, DEK not found",
-			)
+			await expect(service.decrypt(ciphertext, nonce, 1)).rejects.toThrow("Failed to decrypt data, DEK not found")
 		})
 	})
 
