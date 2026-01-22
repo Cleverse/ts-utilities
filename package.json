@@ -107,6 +107,9 @@
 	"lint-staged": {
 		"*.{js,ts,jsx,tsx,json,css,md}": [
 			"prettier --write \"**/*.{ts,tsx,mjs,cjs,json}\""
+		],
+		"*.{ts,tsx,mjs,cjs,json}": [
+			"eslint . --report-unused-disable-directives"
 		]
 	}
 }
