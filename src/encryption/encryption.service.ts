@@ -105,7 +105,6 @@ export type DEK = {
 	version: number
 	dek: string
 	kekVersion: number
-	kekType?: "symmetric" | "asymmetric"
 }
 
 /**
