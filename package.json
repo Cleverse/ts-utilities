@@ -48,8 +48,7 @@
 		"clean": "rm -rf dist",
 		"check-update": "ncu --target=minor --cooldown=3",
 		"check-update:fix": "$npm_execpath check-update -u",
-		"prepublishOnly": "$npm_execpath build",
-		"prepare": "husky"
+		"prepublishOnly": "$npm_execpath build"
 	},
 	"packageManager": "pnpm@10.27.0",
 	"dependencies": {

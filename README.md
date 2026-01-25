@@ -85,6 +85,9 @@ export default [
 ```bash
 # Install dependencies
 pnpm install
+
+# Setup git hooks (husky)
+pnpm husky
 ```
 
 ### Development
