@@ -69,8 +69,8 @@ export class EnvelopeEncryptionService {
 	}
 
 	async #getDEK(version?: number): Promise<DEK | null> {
-		return SingleFlight.withLock("ts-utilities:encryption:getdek", async () => {
-			const dekVersion = version ?? this.config.defaultVersion
+		const dekVersion = version ?? this.config.defaultVersion
+		return SingleFlight.withLock(`ts-utilities:encryption:getdek:${dekVersion ?? "latest"}`, async () => {
 			if (dekVersion) {
 				const dek = this.#deks.get(dekVersion)
 				if (dek) {
@@ -78,7 +78,7 @@ export class EnvelopeEncryptionService {
 				}
 			}
 
-			const encryptedDek = await this.sharedDEKDatagateway.getDEK(version ?? this.config.defaultVersion)
+			const encryptedDek = await this.sharedDEKDatagateway.getDEK(dekVersion)
 			if (!encryptedDek) {
 				return null
 			}
