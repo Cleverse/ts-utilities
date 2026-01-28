@@ -26,6 +26,16 @@ export interface UploadOptions {
 	metadata?: Record<string, PrimitiveValue>
 }
 
+export interface UploadResult {
+	uri: string
+	fileSize: number
+	checksumCrc32c: string | undefined
+	checksumMd5: string | undefined
+	contentType: string
+	bucketName: string
+	filePath: string
+}
+
 /**
  * GCS Helper class for file operations
  */
