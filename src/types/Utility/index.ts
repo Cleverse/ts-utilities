@@ -1,5 +1,6 @@
 export * from "./Intersec"
 export * from "./json"
+export * from "./primitive"
 
 /**
  * Make a field optional.
