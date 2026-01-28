@@ -135,6 +135,9 @@ export class FileHelper {
 		}
 	}
 
+	/**
+	 * Get the file extension from the MIME type
+	 */
 	static mimeFileExtension(mimeType: string): string | null {
 		const extension = mime.getExtension(mimeType)
 		if (!extension) {
