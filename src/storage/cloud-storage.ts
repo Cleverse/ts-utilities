@@ -138,7 +138,12 @@ export class CloudStorageService {
 	/**
 	 * Upload new file to GCS
 	 */
-	async upload(bucketName: string, filePath: string, content: SaveData, options?: UploadOptions) {
+	async upload(
+		bucketName: string,
+		filePath: string,
+		content: SaveData,
+		options?: UploadOptions,
+	): Promise<UploadResult> {
 		const file = this.storage.bucket(bucketName).file(filePath)
 		try {
 			await file.save(content, options)
@@ -162,7 +167,12 @@ export class CloudStorageService {
 	/**
 	 * Upload new file to GCS from the given file URL
 	 */
-	async uploadFromUrl(bucketName: string, filePath: string, fileDownloadUrl: string, options?: UploadOptions) {
+	async uploadFromUrl(
+		bucketName: string,
+		filePath: string,
+		fileDownloadUrl: string,
+		options?: UploadOptions,
+	): Promise<UploadResult> {
 		const response = await fetch(fileDownloadUrl)
 		if (!response.ok) {
 			if (response.status === 404) {
