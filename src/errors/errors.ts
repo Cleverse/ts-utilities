@@ -15,7 +15,7 @@ interface ErrorOptions {
  * CustomError - Base error class for all custom errors.
  */
 export class CustomError extends VError {
-	protected statusCode: number
+	public readonly statusCode: number
 	constructor(name: string, message: string, options?: ErrorOptions) {
 		super(
 			{
