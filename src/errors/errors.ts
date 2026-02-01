@@ -1,5 +1,7 @@
 import VError from "verror"
 
+import type { PrimitiveValue } from "@/types"
+
 import { errors } from "../utils/errors"
 
 interface ErrorOptions {
@@ -9,22 +11,11 @@ interface ErrorOptions {
 	 * HTTP status code
 	 */
 	statusCode?: number
-}
 
-/**
- * is4xxError - Check if the error is a 4xx client error.
- */
-export function is4xxError(error: Error): error is ClientError | CustomError {
-	return (
-		error instanceof ClientError || (error instanceof CustomError && error.statusCode >= 400 && error.statusCode < 500)
-	)
-}
-
-/**
- * is5xxError - Check if the error is a 5xx server error.
- */
-export function is5xxError(error: Error): error is ServerError | CustomError {
-	return error instanceof ServerError || (error instanceof CustomError && error.statusCode >= 500)
+	/**
+	 * Public Info - key-value pairs that are safe to display to the user.
+	 */
+	publicInfo?: Record<string, PrimitiveValue>
 }
 
 /**
@@ -32,6 +23,7 @@ export function is5xxError(error: Error): error is ServerError | CustomError {
  */
 export class CustomError extends VError {
 	public readonly statusCode: number
+	public readonly publicInfo: Record<string, PrimitiveValue>
 	constructor(name: string, message: string, options?: ErrorOptions) {
 		super(
 			{
@@ -41,6 +33,36 @@ export class CustomError extends VError {
 			message,
 		)
 		this.statusCode = options?.statusCode ?? 500
+		this.publicInfo = options?.publicInfo ?? {}
+	}
+
+	/**
+	 * is4xxError - Check if the error is a 4xx client error.
+	 */
+	static is4xxError(error: Error): error is ClientError | CustomError {
+		return (
+			error instanceof ClientError ||
+			(error instanceof CustomError && error.statusCode >= 400 && error.statusCode < 500)
+		)
+	}
+
+	/**
+	 * is5xxError - Check if the error is a 5xx server error.
+	 */
+	static is5xxError(error: Error): error is ServerError | CustomError {
+		return error instanceof ServerError || (error instanceof CustomError && error.statusCode >= 500)
+	}
+
+	static publicInfo(error: Error): Record<string, PrimitiveValue> {
+		return error instanceof CustomError ? error.publicInfo : {}
+	}
+
+	static cause(error: Error): Error | null {
+		return VError.cause(error)
+	}
+
+	static info(error: Error): VError.Info {
+		return VError.info(error)
 	}
 }
 
