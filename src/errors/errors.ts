@@ -95,6 +95,7 @@ export class BadRequestError extends ClientError {
 
 /**
  * InternalError - Error to be thrown when an internal server error occurs.
+ * Most of cases is our fault (logical error, bug, unexpected error -> if error it's mean we missed something).
  */
 export class InternalError extends ServerError {
 	constructor(message: string = "Internal Server Error", options?: ErrorOptions) {
@@ -103,7 +104,8 @@ export class InternalError extends ServerError {
 }
 
 /**
- * SomethingWentWrong - Error to be thrown when an unknown error occurs.
+ * SomethingWentWrong - Error to be thrown when an unknown error occurs (not sure what's the exact error).
+ * May be our fault, user fault or external service fault.
  */
 export class SomethingWentWrong extends InternalError {
 	constructor(message: string = "Something Went Wrong", options?: ErrorOptions) {
