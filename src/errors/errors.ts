@@ -103,11 +103,12 @@ export class InternalError extends ServerError {
 }
 
 /**
- * SomethingWentWrong
+ * SomethingWentWrong - Error to be thrown when an unknown error occurs.
  */
-export class SomethingWentWrong extends ServerError {
+export class SomethingWentWrong extends InternalError {
 	constructor(message: string = "Something Went Wrong", options?: ErrorOptions) {
-		super("SomethingWentWrong", message, { statusCode: 500, ...options })
+		super(message, { statusCode: 500, ...options })
+		this.name = "SomethingWentWrong"
 	}
 }
 
