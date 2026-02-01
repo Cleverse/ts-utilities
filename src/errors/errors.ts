@@ -12,6 +12,22 @@ interface ErrorOptions {
 }
 
 /**
+ * is4xxError - Check if the error is a 4xx client error.
+ */
+export function is4xxError(error: Error): error is ClientError | CustomError {
+	return (
+		error instanceof ClientError || (error instanceof CustomError && error.statusCode >= 400 && error.statusCode < 500)
+	)
+}
+
+/**
+ * is5xxError - Check if the error is a 5xx server error.
+ */
+export function is5xxError(error: Error): error is ServerError | CustomError {
+	return error instanceof ServerError || (error instanceof CustomError && error.statusCode >= 500)
+}
+
+/**
  * CustomError - Base error class for all custom errors.
  */
 export class CustomError extends VError {
