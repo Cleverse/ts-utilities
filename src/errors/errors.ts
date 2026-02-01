@@ -29,9 +29,27 @@ export class CustomError extends VError {
 }
 
 /**
+ * ClientError - Base error class for all 4xx client errors.
+ */
+export class ClientError extends CustomError {
+	constructor(name: string, message: string, options?: ErrorOptions) {
+		super(name, message, options)
+	}
+}
+
+/**
+ * ServerError - Base error class for all 5xx server errors.
+ */
+export class ServerError extends CustomError {
+	constructor(name: string, message: string, options?: ErrorOptions) {
+		super(name, message, options)
+	}
+}
+
+/**
  * BadRequestError - Error to be thrown when the request is invalid.
  */
-export class BadRequestError extends CustomError {
+export class BadRequestError extends ClientError {
 	constructor(message: string = "Bad Request", options?: ErrorOptions) {
 		super("BadRequestError", message, { statusCode: 400, ...options })
 	}
@@ -40,7 +58,7 @@ export class BadRequestError extends CustomError {
 /**
  * InternalError - Error to be thrown when an internal server error occurs.
  */
-export class InternalError extends CustomError {
+export class InternalError extends ServerError {
 	constructor(message: string = "Internal Server Error", options?: ErrorOptions) {
 		super("InternalError", message, { statusCode: 500, ...options })
 	}
@@ -49,17 +67,16 @@ export class InternalError extends CustomError {
 /**
  * SomethingWentWrong
  */
-export class SomethingWentWrong extends InternalError {
+export class SomethingWentWrong extends ServerError {
 	constructor(message: string = "Something Went Wrong", options?: ErrorOptions) {
-		super(message, { statusCode: 500, ...options })
-		this.name = "SomethingWentWrong"
+		super("SomethingWentWrong", message, { statusCode: 500, ...options })
 	}
 }
 
 /**
  * ForbiddenError - Error to be thrown when the user is not allowed to access the resource.
  */
-export class ForbiddenError extends CustomError {
+export class ForbiddenError extends ClientError {
 	constructor(message: string = "Forbidden", options?: ErrorOptions) {
 		super("ForbiddenError", message, { statusCode: 403, ...options })
 	}
@@ -68,7 +85,7 @@ export class ForbiddenError extends CustomError {
 /**
  * UnauthorizedError - Error to be thrown when the user is not authorized.
  */
-export class UnauthorizedError extends CustomError {
+export class UnauthorizedError extends ClientError {
 	constructor(message: string = "Unauthorized", options?: ErrorOptions) {
 		super("UnauthorizedError", message, { statusCode: 401, ...options })
 	}
@@ -107,7 +124,7 @@ export class InvalidArgumentError extends BadRequestError {
 /**
  * TimeoutError - Error to be thrown when a request timeout.
  */
-export class TimeoutError extends CustomError {
+export class TimeoutError extends ClientError {
 	constructor(message: string = "Timeout", options?: ErrorOptions) {
 		super("TimeoutError", message, { statusCode: 408, ...options })
 	}
@@ -116,7 +133,7 @@ export class TimeoutError extends CustomError {
 /**
  * RateLimitExceededError - Error to be thrown when a rate limit is exceeded.
  */
-export class RateLimitExceededError extends CustomError {
+export class RateLimitExceededError extends ClientError {
 	constructor(message: string = "Rate Limit Exceeded", options?: ErrorOptions) {
 		super("RateLimitExceededError", message, { statusCode: 429, ...options })
 	}
@@ -125,7 +142,7 @@ export class RateLimitExceededError extends CustomError {
 /**
  * RecoverableError - Error to be thrown when task can be retried or recovered.
  */
-export class RecoverableError extends CustomError {
+export class RecoverableError extends ServerError {
 	constructor(message: string, options?: ErrorOptions) {
 		super("RecoverableError", message, { statusCode: 500, ...options })
 	}
@@ -134,7 +151,7 @@ export class RecoverableError extends CustomError {
 /**
  * UnrecoverableError - Error to be thrown when task cannot be retried or recovered.
  */
-export class UnrecoverableError extends CustomError {
+export class UnrecoverableError extends ServerError {
 	constructor(message: string, options?: ErrorOptions) {
 		super("UnrecoverableError", message, { statusCode: 500, ...options })
 	}
@@ -143,7 +160,7 @@ export class UnrecoverableError extends CustomError {
 /**
  * ConflictError - Error to be thrown when a request conflict with the current state of the target resource.
  */
-export class ConflictError extends CustomError {
+export class ConflictError extends ClientError {
 	constructor(message: string = "Conflict", options?: ErrorOptions) {
 		super("ConflictError", message, { statusCode: 409, ...options })
 	}
@@ -152,7 +169,7 @@ export class ConflictError extends CustomError {
 /**
  * SkipableError - Error to be thrown when the error is skipable and can be ignored.
  */
-export class SkipableError extends CustomError {
+export class SkipableError extends ServerError {
 	constructor(message: string = "skippable", options?: ErrorOptions) {
 		super("SkipableError", message, { statusCode: 500, ...options })
 	}
