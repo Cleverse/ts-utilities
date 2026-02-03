@@ -57,12 +57,12 @@ export class CustomError extends VError {
 		return error instanceof CustomError ? error.publicInfo : {}
 	}
 
-	static cause(error: Error): Error | null {
-		return VError.cause(error)
+	static cause(error: Error | unknown): Error | null {
+		return errors.unwrap(error) ?? null
 	}
 
-	static info(error: Error): VError.Info {
-		return VError.info(error)
+	static info(error: Error | unknown): VError.Info {
+		return VError.info(errors.toError(error))
 	}
 }
 
