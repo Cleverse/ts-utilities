@@ -1,6 +1,6 @@
 import VError from "verror"
 
-import type { PrimitiveValue } from "@/types"
+import type { Primitive } from "@/types"
 
 import { errors } from "../utils/errors"
 
@@ -15,7 +15,12 @@ interface ErrorOptions {
 	/**
 	 * Public Info - key-value pairs that are safe to display to the user.
 	 */
-	publicInfo?: Record<string, PrimitiveValue>
+	publicInfo?: Record<string, Primitive>
+
+	/**
+	 * Info - key-value pairs that are not safe to display to the user.
+	 */
+	info?: Record<string, Primitive>
 }
 
 /**
@@ -23,12 +28,13 @@ interface ErrorOptions {
  */
 export class CustomError extends VError {
 	public readonly statusCode: number
-	public readonly publicInfo: Record<string, PrimitiveValue>
+	public readonly publicInfo: Record<string, Primitive>
 	constructor(name: string, message: string, options?: ErrorOptions) {
 		super(
 			{
 				name,
 				cause: options?.cause ? errors.toError(options.cause) : undefined,
+				info: options?.info ?? {},
 			},
 			message,
 		)
@@ -53,16 +59,16 @@ export class CustomError extends VError {
 		return error instanceof ServerError || (error instanceof CustomError && error.statusCode >= 500)
 	}
 
-	static publicInfo(error: Error): Record<string, PrimitiveValue> {
+	static publicInfo(error: Error): Record<string, Primitive> {
 		return error instanceof CustomError ? error.publicInfo : {}
+	}
+
+	static info(error: Error | unknown): Record<string, Primitive> {
+		return VError.info(errors.toError(error)) ?? {}
 	}
 
 	static cause(error: Error | unknown): Error | null {
 		return errors.unwrap(error) ?? null
-	}
-
-	static info(error: Error | unknown): VError.Info {
-		return VError.info(errors.toError(error))
 	}
 }
 
