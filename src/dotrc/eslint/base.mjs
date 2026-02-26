@@ -1,9 +1,9 @@
-// @ts-check
 import eslint from "@eslint/js"
 import { defineConfig, globalIgnores } from "eslint/config"
 import { flatConfigs as importPluginFlatConfigs } from "eslint-plugin-import"
 import tseslint from "typescript-eslint"
 
+// @ts-check
 export default defineConfig(
 	eslint.configs.recommended,
 	tseslint.configs.recommended,
@@ -14,13 +14,16 @@ export default defineConfig(
 		".next/**",
 		".turbo/",
 		"**/build/**",
-		"*.config.cjs",
-		"*.config.js",
-		"*.config.mjs",
-		"*.config.ts",
+		// config files
+		"*.config.{cjs,mjs,js,ts}",
 		".prettierrc.js",
+		// ignore files
 		"**/ignore.*",
 		"**/*.ignore.*",
+		// backup files
+		"**/*.bak",
+		"**/*.bak.*",
+		"**/*.bak/**",
 	]),
 	{
 		files: ["**/*.{js,mjs,cjs,ts,mts,jsx,tsx}"],
