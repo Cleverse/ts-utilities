@@ -1,6 +1,6 @@
 {
 	"name": "@cleverse/ts-utilities",
-	"version": "1.3.4",
+	"version": "1.3.5",
 	"description": "miscellaneous useful shared modern Typescript/Javascript packages by Cleverse",
 	"homepage": "https://github.com/cleverse/ts-utilities",
 	"repository": {
