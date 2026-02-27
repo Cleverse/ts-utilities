@@ -1,9 +1,7 @@
-import pino from "pino"
+import pino, { type LoggerOptions } from "pino"
 
 import { gcpPinoLoggerOptions } from "./gcp-options"
 import { Bindings, ILogger, MergingObject } from "./interface"
-
-import type { LoggerOptions } from "pino"
 
 type Environment = "local" | "development" | "production"
 
@@ -30,11 +28,12 @@ const loggerOptions: Record<Environment, LoggerOptions> = {
 	},
 }
 
+const environment: Environment | undefined = process.env.ENVIRONMENT as Environment | undefined
+export const defaultLoggerOptions = loggerOptions[environment ?? "local"]
+
 export class PinoAdapter implements ILogger {
 	// Global default logger
-	private static _logger = new PinoAdapter(
-		pino(loggerOptions[process.env.ENVIRONMENT as Environment] ?? loggerOptions.local),
-	)
+	private static _logger = new PinoAdapter(pino(defaultLoggerOptions))
 
 	static get logger(): ILogger {
 		return PinoAdapter._logger
@@ -120,5 +119,4 @@ export default logger
  */
 export const init = PinoAdapter.init
 
-export const defaultLoggerOptions = loggerOptions[process.env.ENVIRONMENT as Environment] ?? loggerOptions.local
 export * from "./interface"
