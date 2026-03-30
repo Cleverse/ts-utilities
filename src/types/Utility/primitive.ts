@@ -11,7 +11,7 @@ export type PrimitiveValue = string | number | boolean
  * NOTE:
  * We don't use `z.infer` to reduce bundle size and type inference performance.
  */
-export const PrimitiveValueSchema = z.union([z.string(), z.number(), z.boolean()])
+export const PrimitiveValueSchema: z.ZodType<PrimitiveValue> = z.union([z.string(), z.number(), z.boolean()])
 
 /**
  * Primitive type
@@ -24,4 +24,4 @@ export type Primitive = PrimitiveValue | null | undefined
  * NOTE:
  * We don't use `z.infer` to reduce bundle size and type inference performance.
  */
-export const PrimitiveSchema = z.union([PrimitiveValueSchema, z.null(), z.undefined()])
+export const PrimitiveSchema: z.ZodType<Primitive> = z.union([PrimitiveValueSchema, z.null(), z.undefined()])
