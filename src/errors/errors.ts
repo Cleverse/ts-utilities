@@ -1,4 +1,4 @@
-import VError from "verror"
+import { VError } from "verror"
 
 import type { Primitive } from "@/types"
 
