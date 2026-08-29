@@ -1,6 +1,6 @@
 import crypto from "node:crypto"
 
-import { VError } from "verror"
+import VError from "verror"
 
 export * from "./encryption.service"
 

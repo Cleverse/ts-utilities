@@ -40,6 +40,7 @@
 		"dev": "tsup --watch",
 		"test": "vitest run",
 		"test:watch": "vitest",
+		"test:dist": "node scripts/smoke-dist.mjs",
 		"lint": "eslint . --report-unused-disable-directives",
 		"lint:fix": "eslint . --report-unused-disable-directives --fix",
 		"format": "prettier --check \"src/**/*.{ts,tsx,mjs,cjs,json}\"",

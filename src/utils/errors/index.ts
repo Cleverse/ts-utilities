@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { VError } from "verror"
+import VError from "verror"
 
 function unwrap(err: Error | unknown): Error | undefined {
 	if (!err || typeof err !== "object" || !("cause" in err)) return undefined

@@ -98,6 +98,9 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Smoke test dist
+        run: pnpm test:dist
+
       - name: Update Pull Request Comment for Success
         if: ${{ success() }}
         uses: marocchino/sticky-pull-request-comment@v2
