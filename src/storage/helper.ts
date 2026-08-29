@@ -1,5 +1,5 @@
 import mime from "mime"
-import { VError } from "verror"
+import VError from "verror"
 
 import { CloudStorageService } from "./cloud-storage"
 import { OneDriveService } from "./onedrive"

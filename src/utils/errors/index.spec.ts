@@ -1,4 +1,4 @@
-import { VError } from "verror"
+import VError from "verror"
 import { describe, expect, it } from "vitest"
 
 import { errors } from "./index"

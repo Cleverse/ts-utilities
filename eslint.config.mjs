@@ -4,13 +4,15 @@ import base from "./src/dotrc/eslint/base.mjs"
 export default [
 	...base,
 	{
-		ignores: ["*.config.mjs", "*.config.ts", "dist/**", "dist"],
+		ignores: ["*.config.mjs", "*.config.ts", "scripts/**", "dist/**", "dist"],
 	},
 	{
 		files: ["**/*.{js,mjs,cjs,ts,mts,jsx,tsx}"],
 		languageOptions: {
 			parserOptions: {
-				projectService: true,
+				projectService: {
+					allowDefaultProject: ["scripts/*.mjs"],
+				},
 			},
 		},
 	},

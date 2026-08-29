@@ -1,4 +1,4 @@
-import { VError } from "verror"
+import VError from "verror"
 
 import { EncryptionModule } from "@/encryption"
 import { KMSClient } from "@/kms"

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { VError } from "verror"
+import VError from "verror"
 
 /**
  * Decode a jsonl stream into an array of objects.

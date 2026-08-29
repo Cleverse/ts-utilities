@@ -1,7 +1,7 @@
 import crypto from "node:crypto"
 
 import { KeyManagementServiceClient } from "@google-cloud/kms"
-import { VError } from "verror"
+import VError from "verror"
 
 import type { EncryptionResult, KMSClientConfig, KMSClientInterface } from "./interfaces"
 
