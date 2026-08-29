@@ -10,7 +10,9 @@ export default [
 		files: ["**/*.{js,mjs,cjs,ts,mts,jsx,tsx}"],
 		languageOptions: {
 			parserOptions: {
-				projectService: true,
+				projectService: {
+					allowDefaultProject: ["scripts/*.mjs"],
+				},
 			},
 		},
 	},
