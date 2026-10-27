@@ -5,7 +5,7 @@
 
 
 [tools]
-node = { version = "24.12", postinstall = "corepack enable" }
+node = { version = "24.22.1", postinstall = "corepack enable" }
 
 [hooks]
 enter = ["mise i -q"]
