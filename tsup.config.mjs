@@ -1,5 +1,5 @@
 import { defineConfig } from "tsup"
-import { cpSync, globSync, writeFileSync, existsSync } from "node:fs"
+import { cpSync, globSync, writeFileSync, existsSync, readFileSync } from "node:fs"
 import { resolve, dirname, basename, join } from "node:path"
 
 export default defineConfig({
@@ -67,10 +67,15 @@ export function createDirectoryProxyFiles() {
 		const proxyDtsPath = join(parentDir, `${folderName}.d.ts`)
 		// Proxy target path (relative import)
 		const targetPath = `./${folderName}/index`
+		// `export *` never re-exports `default`, so forward it explicitly when the index has one
+		const dtsIndexFile = indexFile.replace(/\.js$/, ".d.ts")
+		const hasDefault = (file) =>
+			existsSync(file) && /\bas default\b|\bexport default\b/.test(readFileSync(file, "utf8"))
+		const reexportDefault = (target, file) => (hasDefault(file) ? `export { default } from '${target}';\n` : "")
 		// ESM Proxy (.js)
-		writeFileSync(proxyJsPath, `export * from '${targetPath}.js';\n`)
+		writeFileSync(proxyJsPath, `export * from '${targetPath}.js';\n${reexportDefault(`${targetPath}.js`, indexFile)}`)
 		// Type Proxy (.d.ts)
-		writeFileSync(proxyDtsPath, `export * from '${targetPath}';\n`)
+		writeFileSync(proxyDtsPath, `export * from '${targetPath}';\n${reexportDefault(targetPath, dtsIndexFile)}`)
 		// CJS Proxy (.cjs) - only if CJS index exists
 		const cjsIndexFile = indexFile.replace(".js", ".cjs")
 		if (existsSync(cjsIndexFile)) {

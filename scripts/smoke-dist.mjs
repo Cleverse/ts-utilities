@@ -27,20 +27,32 @@ if (subpaths.length === 0) {
 	process.exit(1)
 }
 
+// a directory proxy's `export *` silently drops `default`, so both module systems must expose the same names
+const exportNames = (mod) =>
+	Object.keys(mod)
+		.filter((key) => key !== "__esModule")
+		.sort()
+		.join(",")
+
 let failed = 0
 for (const subpath of subpaths) {
 	const specifier = `${name}/${subpath}`
+	let esm, cjs
 	try {
-		await import(specifier) // "import" condition -> dist/*.js
+		esm = await import(specifier) // "import" condition -> dist/*.js
 	} catch (error) {
 		failed++
 		console.error(`ESM ${specifier}: ${error.message}`)
 	}
 	try {
-		require(specifier) // "require" condition -> dist/*.cjs
+		cjs = require(specifier) // "require" condition -> dist/*.cjs
 	} catch (error) {
 		failed++
 		console.error(`CJS ${specifier}: ${error.message}`)
+	}
+	if (esm && cjs && exportNames(esm) !== exportNames(cjs)) {
+		failed++
+		console.error(`${specifier}: ESM exports [${exportNames(esm)}] differ from CJS [${exportNames(cjs)}]`)
 	}
 }
 
