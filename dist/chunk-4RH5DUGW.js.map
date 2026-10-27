@@ -1,0 +1,1 @@
+{"version":3,"sources":["../src/types/Env/index.ts"],"sourcesContent":["import { z } from \"zod\"\n\nexport const Environment = z.enum([\"local\", \"development\", \"production\"]).default(\"development\")\nexport type Environment = z.infer<typeof Environment>\n"],"mappings":";AAAA,SAAS,SAAS;AAEX,IAAM,cAAc,EAAE,KAAK,CAAC,SAAS,eAAe,YAAY,CAAC,EAAE,QAAQ,aAAa;","names":[]}
